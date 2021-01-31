@@ -1,0 +1,150 @@
+<!--
+Student ID:1949955
+Name: Ang Yun Zane
+Class: DIT/FT/1B/01 
+-->
+<!DOCTYPE html>
+<html lang="en-SG">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="author" content="Ang Yun, zane">
+    <title>Snap Sell|User</title>
+    <link rel="stylesheet" href="/layout.css">
+    <style>
+        #offer>div>span:first-child {
+            background-color: #ff0000;
+            margin-right: 5px;
+            color: #eaeaff;
+        }
+
+        #offer #acc {
+            display: inline;
+            background-color: #ff3333;
+            border: transparent;
+            border-radius: 10%;
+            color: #ffffff;
+        }
+        #info>img{
+            max-width: 50%;
+            height: 50%;
+            object-fit: contain;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <ul>
+            <li><h1>SnapSell</h1></li>
+            <li><a href="/">Home</a></li>
+            <li><a href="/user">My Info</a></li>
+            <li><a href="/search">Search</a></li>
+            <li><a href="/sell">Sell</a></li>
+            <li><a href="#" id="LogOut">Log out</a></li>
+        </ul>
+    </header>
+    <article style="display: grid;grid-template-columns:65% auto;">
+        <div id="info">
+            <h1>My info</h1>
+            <img style="width: auto;height: 200px;" src="data:," alt="profile">
+            <h3></h3>
+            <p>Joint at </p>
+            <a href="/user/edit.html">Edit</a>
+        </div>
+        <div>
+            <h2>My Offers</h2>
+            <div id="offer"></div>
+        </div>
+    </article>
+    <script>
+        const authorization = "Bearer " + localStorage.getItem("authorization");
+        const userID = localStorage.getItem("userID");
+        const INFO = document.getElementById("info")
+        const OFFER = document.getElementById("offer")
+        const LOGOUT = document.getElementById("LogOut")
+        if (userID) {
+            LOGOUT.onclick = function () {
+                localStorage.clear()
+                window.location = "/login"
+            }
+        } else {
+            window.location = "/login"
+        }
+        fetch("http://" + window.location.hostname + ":8081/users/" + userID, {
+            headers: { authorization }
+        })
+            .then(res => {
+                if (res.status == 200) {
+                    return res.json()
+                } else {
+                    alert(res.statusText)
+                }
+            })
+            .then(data => {
+                INFO.children[1].src = data.profile_pic_url
+                INFO.children[2].textContent = data.username
+                INFO.children[3].textContent += data.created_at
+            })
+            .catch(e => console.error(e))
+        let lastOffer = [];
+        function getOffer(first) {
+
+            fetch("http://" + window.location.hostname + ":8081/users/" + userID + "/offer", {
+                method: "GET",
+                headers: { authorization }
+            })
+                .then(res => {
+                    if (res.status === 200) {
+                        return res.json()
+                    } else {
+                        alert(res.statusText)
+                        throw new Error(res.statusText)
+                    }
+                })
+                .then(data => {
+                    OFFER.innerHTML = ""
+                    if (Notification.permission === "granted") {
+                        if (first) {
+                            lastOffer = data.map(x => x.accepted)
+                        } else {
+                            data.forEach((x, y) => {
+                                if (x.accepted !== lastOffer[y]) {
+                                    new Notification("Your offer for " + x.title + " have been " + (x.accepted == 1 ? "Accepted" : "Rejected"));
+                                }
+                            })
+                            lastOffer = data.map(x => x.accepted)
+
+                        }
+                    }
+                    data.forEach(element => {
+                        let div = document.createElement("div");
+                        let span = document.createElement("span");
+                        let acc = document.createElement("span");
+                        acc.id = "acc";
+                        span.textContent = `$${element.offer} offer for ${element.title}`;
+                        div.appendChild(span)
+                        switch (element.accepted) {
+                            case null:
+                                acc.textContent = "Pending";
+                                break;
+                            case 1:
+                                acc.textContent = "Accepted";
+                                break;
+                            case 0:
+                                acc.textContent = "Rejected";
+                        }
+                        div.appendChild(acc)
+                        OFFER.appendChild(div)
+                    })
+                })
+                .catch(e => console.log(e))
+        }
+        getOffer(true)
+        setInterval(getOffer, 10000)
+    </script>
+</body>
+
+</html>

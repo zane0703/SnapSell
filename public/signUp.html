@@ -1,0 +1,105 @@
+<!--
+Student ID:1949955
+Name: Ang Yun Zane
+Class: DIT/FT/1B/01 
+-->
+<!DOCTYPE html>
+<html lang="en-SG">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="author" content="Ang Yun, zane">
+    <title>sign Up|SnapSell</title>
+    <link rel="stylesheet" href="/layout.css">
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <style>
+        input[type=file]::-webkit-file-upload-button {
+            background-color: #ff3333;
+            color: white;
+            border-radius: 5px;
+            border: transparent;
+            cursor: pointer;
+        }
+
+        input[type=file]::-webkit-file-upload-button:hover {
+            background-color: #ff0000;
+        }
+    </style>
+</head>
+
+<body>
+
+    <body style="position: absolute;top: 50%;left: 50%;transform: translate(-50%,-50%);">
+        <h1>sign Up</h1>
+        <form id="signUp" action="javascript:void(0);">
+            <fieldset>
+                <legend>Personal Info</legend>
+                <label for="username">Username</label>
+                <input autocomplete="username" id="username" name="username" style="display: block;margin-bottom: 0.5rem;" required type="text"
+                    placeholder="username" required>
+                <label for="password">Password</label>
+                <input autocomplete="new-password" id="password" name="password" style="display: block;margin-bottom: 0.5rem;" required
+                    type="password" required>
+                <label for="cPassword">Verify Password</label>
+                <input autocomplete="new-password" id="cPassword" name="cPassword" style="display: block;margin-bottom: 0.5rem;" required
+                    type="password" required>
+            </fieldset>
+            <fieldset>
+                <legend>Profile Picture</legend>
+                <label for="url">URL</label>
+                <input type="radio" name="upload"
+                    onclick="FILE.style.display='none';FILE.required =false;URLAERA.style.display='block';URLT.required =true"
+                    value="0" checked />
+                <label for="file">File</label>
+                <input type="radio" name="upload"
+                    onclick="FILE.style.display='block';FILE.required =true;URLAERA.style.display='none';URLT.required =false"
+                    value="1" />
+                <div id="urlArea">
+                    <label for="urlField">URL</label>
+                    <input type="url" name="profile_pic_url" id="urlField" placeholder="http://example.com/picture.jpg"
+                        required />
+                </div>
+                <input style="display: none;" type="file" name="pic" id="pic" accept="image/jpeg" />
+            </fieldset>
+            <div class="g-recaptcha" data-theme="dark" data-sitekey="?"></div>
+            <a href="/login">Back</a>
+            <input type="submit" value="sign Up">
+
+
+        </form>
+        <script>
+            const SIGNUP = document.getElementById("signUp")
+            const URLAERA = document.getElementById("urlArea")
+            const URLT = document.getElementById("urlField")
+            const PASSWORD = document.getElementById("password")
+            const CPASSWORD = document.getElementById("cPassword")
+            const FILE = document.getElementById("pic")
+
+            SIGNUP.onsubmit = function () {
+                if (CPASSWORD.value === PASSWORD.value) {
+                    formData = new FormData(SIGNUP);
+                    formData.delete("cPassword");
+                    fetch("http://localhost:8081/users", {
+                        body: formData,
+                        method: "POST"
+                    })
+                        .then((data) => {
+                            if (data.status == 201) {
+                                window.location = "/login"
+                            } else  {
+                                alert(data.statusText)
+                                grecaptcha.reset();
+                            }
+                        })
+                } else {
+                    alert("Verify Password not match")
+                }
+            }
+
+
+        </script>
+    </body>
+
+</html>

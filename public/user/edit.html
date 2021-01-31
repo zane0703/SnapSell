@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>sign Upe|SnapSell</title>
+    <link rel="stylesheet" href="../layout.css">
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <style>
+        input[type=file]::-webkit-file-upload-button {
+            background-color: #ff3333;
+            color: white;
+            border-radius: 5px;
+            border: transparent;
+            cursor: pointer;
+        }
+
+        input[type=file]::-webkit-file-upload-button:hover {
+            background-color: #ff0000;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/user">My Info</a></li>
+            <li><a href="/search">Search</a></li>
+            <li><a href="/sell">Sell</a></li>
+            <li><a href="#" id="LogOut">Log out</a></li>
+        </ul>
+    </header>
+    <div style="position: absolute;top: 50%;left: 50%;transform: translate(-50%,-50%);width: 244.8px;">
+        <h1>Update</h1>
+        <form id="signUp" action="javascript:void(0);">
+            <label for="username">Username</label>
+            <input autocomplete="username" id="username" name="username" style="display: block;margin-bottom: 0.5rem;" type="text"
+                placeholder="username">
+            <label for="currentPass">Current Password</label>
+            <input autocomplete="current-password" type="password" id="currentPass" style="display: block;margin-bottom: 0.5rem;" name="currentPass">
+            <label for="password">Password</label>
+            <input autocomplete="new-password" id="password" name="password" style="display: block;margin-bottom: 0.5rem;" type="password">
+            <label for="cPassword">Verify Password</label>
+            <input autocomplete="new-password" id="cPassword" name="cPassword" style="display: block;margin-bottom: 0.5rem;" type="password">
+            <label for="url">URL</label>
+            <input type="radio" name="upload" onclick="FILE.style.display='none';URLAERA.style.display='block';"
+                value="0" checked />
+            <label for="file">File</label>
+            <input type="radio" name="upload" onclick="FILE.style.display='block';URLAERA.style.display='none';"
+                value="1" />
+            <div id="urlArea">
+                <label for="urlField">URL</label>
+                <input type="url" name="profile_pic_url" id="urlField" placeholder="http://example.com/picture.jpg" />
+            </div>
+            <input style="display: none;" type="file" name="pic" id="pic" accept="image/jpeg" />
+
+            <input type="submit" value="Update"
+                style="background-color: red;border-color:transparent;border-radius: 10%;color: white;">
+        </form>
+    </div>
+    <script>
+        const authorization = "Bearer " + localStorage.getItem("authorization")
+        const userID = localStorage.getItem("userID")
+        const SIGNUP = document.getElementById("signUp")
+        const URLAERA = document.getElementById("urlArea")
+        const PASSWORD = document.getElementById("password")
+        const LOGOUT = document.getElementById("LogOut")
+        const CPASSWORD = document.getElementById("cPassword")
+        const FILE = document.getElementById("pic")
+        if (userID) {
+            LOGOUT.onclick = function () {
+                if (confirm("Are you sure you want to log out")) {
+                    localStorage.clear()
+                    window.location = "/login"
+                }
+            }
+        } else {
+            window.location = "/login"
+        }
+        SIGNUP.onsubmit = function () {
+            if (CPASSWORD.value === PASSWORD.value) {
+                formData = new FormData(SIGNUP)
+                formData.delete(cPassword)
+                fetch("http://localhost:8081/users/" + userID, {
+                    body: formData,
+                    method: "PUT",
+                    headers: { authorization }
+                })
+                    .then((res) => {
+                        switch (res.status) {
+                            case 200:
+                                return res.json()
+                                break
+                            case 204:
+                                window.location = "/user"
+                                throw new Error()
+                                break
+                            case 409:
+                                alert("username have been taken")
+                                throw new Error("username have been taken")
+                                break;
+                            default:
+                                alert(res.statusText)
+                                throw new Error(res.statusText)
+
+                        }
+                    }).then((data) => {
+                        localStorage.setItem("authorization", data.token)
+                        console.log(data)
+                        window.location = "/user"
+                    })
+            } else {
+                alert("Verify Password not match")
+            }
+        }
+
+
+    </script>
+    </div>
+
+</html>

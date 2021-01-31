@@ -1,0 +1,362 @@
+<!--
+Student ID:1949955
+Name: Ang Yun Zane
+Class: DIT/FT/1B/01 
+-->
+<!DOCTYPE html>
+<html lang="en-SG">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Home|SnapSell</title>
+    <link rel="stylesheet" href="/layout.css">
+    <style>
+        #listing>div {
+            text-align: center;
+            padding: 0.1rem;
+            border: 1px #FFFFFF solid;
+            margin: 0.5rem;
+            min-height: 400px;
+
+        }
+
+        #listing>div>p:nth-of-type(1) {
+            height: 100px;
+            max-width: 100%;
+            size: .1rem;
+            overflow: auto;
+        }
+
+        #listing>div>img {
+            width: 80%;
+            height: 200px;
+            object-fit: contain;
+        }
+
+        #offer>div>span:first-child {
+            background-color: #ff0000;
+            margin-right: 5px;
+            color: #eaeaff;
+        }
+
+        #offer #acc,
+        button {
+            display: inline;
+            background-color: #ff3333;
+            border: transparent;
+            border-radius: 5px;
+            color: #ffffff;
+        }
+
+        button:hover {
+            background-color: #ff0000;
+        }
+
+        body>div {
+            display: grid;
+            grid-template-columns: 65% auto;
+        }
+
+        @media only screen and (max-width: 768px) {
+            body>div {
+                display: grid;
+                grid-template-columns: auto !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <ul>
+            <li><h1>SnapSell</h1></li>
+            <li><a href="/">Home</a></li>
+            <li><a href="/user">My Info</a></li>
+            <li><a href="/search">Search</a></li>
+            <li><a href="/sell">Sell</a></li>
+            <li><a href="#" id="LogOut">Log out</a></li>
+        </ul>
+    </header>
+    <h1>Home</h1>
+    <div>
+        <div style="position: relative;">
+            <h2>My product listings</h2>
+            <div id="listing" style="display: grid;grid-template-columns:33% 33% 33%;">
+            </div>
+            <div style="align-content: center;position: relative;left: 50%;transform: translate(0,50%);" id="listPag">
+            </div>
+        </div>
+        <div>
+            <h2>My product Offers</h2>
+            <div id="offer"></div>
+        </div>
+    </div>
+    </div>
+    <script>
+        const authorization = "Bearer " + localStorage.getItem("authorization")
+        const userID = localStorage.getItem("userID")
+        const LOGOUT = document.getElementById("LogOut")
+        const LISTING = document.getElementById("listing")
+        const OFFER = document.getElementById("offer")
+        const PAGE = document.getElementById("listPag")
+        if (userID) {
+            Notification.requestPermission()
+            LOGOUT.onclick = function () {
+                if (confirm("Are you sure you want to log out")) {
+                    localStorage.clear()
+                    window.location = "/login"
+                }
+            }
+
+            function getListings() {
+                fetch("http://" + window.location.hostname + ":8081/users/" + userID + "/listings", {
+                    method: "GET",
+                    headers: { authorization }
+                })
+                    .then((data) => {
+                        if (data.status === 200) {
+                            return data.text()
+                        } else {
+                            alert(data.statusText)
+                            window.location = "/login"
+                            throw new Error(data)
+                        }
+                    })
+                    .then((data) => {
+                        LISTING.innerHTML = ""
+                        sessionStorage.setItem("listings", data)
+                        data = JSON.parse(data);
+                        let pageLen = 0
+                        let itemNum = 0
+                        PAGE.innerHTML = ""
+                        if (data.length > 6) {
+                            itemNum = 6;
+                            pageLen = Math.floor(data.length / 6);
+                            for (let i = 0; pageLen >= i; i++) {
+                                let pagBtn = document.createElement("button");
+                                pagBtn.textContent = i + 1;
+                                pagBtn.onclick = () => nextPage(i, pageLen)
+                                PAGE.appendChild(pagBtn)
+                            }
+                        } else {
+                            itemNum = data.length;
+                        }
+                        for (let i = 0; i < itemNum; i++) {
+                            let body = data[i];
+                            let div = document.createElement("div");
+                            let img = document.createElement("img");
+                            let h2 = document.createElement("h2");
+                            let h3 = document.createElement("h3");
+                            let p1 = document.createElement("p");
+                            let p2 = document.createElement("p");
+                            let btnDel = document.createElement("button");
+                            let btnUp = document.createElement("button")
+                            img.src = body.picture_url;
+                            h2.textContent = body.title;
+                            h3.textContent = "price: $" + body.price;
+                            p1.textContent = body.description;
+                            p2.textContent = body.like + " like";
+                            btnDel.onclick = delList.bind(null,body.id)
+                            btnUp.onclick = () => window.location = `/listings?id=${body.id}&title=${body.title}&price=${body.price}&description=${body.description}`
+                            btnDel.textContent = "Delete";
+                            btnUp.textContent = "Update";
+                            div.appendChild(img);
+                            div.appendChild(h2)
+                            div.appendChild(h3);
+                            div.appendChild(p1);
+                            div.appendChild(p2);
+                            if (body.like) {
+                                fetch("http://" + window.location.hostname + ":8081/listings/" + body.id + "/like", {
+                                    method: "GET",
+                                    headers: { authorization }
+                                })
+                                    .then(res => {
+                                        if (res.status === 200) {
+                                            return res.json();
+                                        } else {
+                                            throw new Error(res.statusText)
+                                        }
+                                    })
+                                    .then((data) => {
+                                        data.forEach(x => {
+                                            p2.title += x.liker_name + "\n"
+                                        })
+                                    })
+                                    .catch(console.error)
+                            }
+                            div.appendChild(btnDel);
+                            div.appendChild(btnUp);
+                            LISTING.appendChild(div);
+                        }
+
+
+
+                    })
+                    .catch((e) => console.log(e))
+            }
+            function nextPage(i, pageLen) {
+                LISTING.innerHTML = ""
+                let data = JSON.parse(sessionStorage.getItem("listings"))
+                let j = i * 6
+                let end = i == pageLen ? data.length : j + 6;
+                for (; j < end; j++) {
+                    let body = data[j];
+                    let div = document.createElement("div");
+                    let img = document.createElement("img");
+                    let h2 = document.createElement("h2");
+                    let h3 = document.createElement("h3");
+                    let p1 = document.createElement("p");
+                    let p2 = document.createElement("p");
+                    let btnDel = document.createElement("button");
+                    let btnUp = document.createElement("button")
+                    img.src = body.picture_url;
+                    h2.textContent = body.title;
+                    h3.textContent = "price: $" + body.price;
+                    p1.textContent = body.description;
+                    p2.textContent = body.like + " like";
+                    btnDel.onclick = delList.bind(null,body.id)
+                    btnUp.onclick = () =>{window.location = `/listings?id=${body.id}&title=${body.title}&price=${body.price}&description=${body.description}`}
+                    btnDel.textContent = "Delete";
+                    btnUp.textContent = "Update";
+                    div.appendChild(img);
+                    div.appendChild(h2)
+                    div.appendChild(h3);
+                    div.appendChild(p1);
+                    div.appendChild(p2);
+                    if (body.like) {
+                        fetch("http://" + window.location.hostname + ":8081/listings/" + body.id + "/like", {
+                            method: "GET",
+                            headers: { authorization }
+                        })
+                            .then((res) => {
+                                if (res.status === 200) {
+                                    return res.json();
+                                } else {
+                                    throw new Error(res.statusText)
+                                }
+                            })
+                            .then((data) => {
+                                data.forEach(x => {
+                                    p2.title += x.liker_name + "\n"
+                                })
+                            })
+                            .catch((err) => console.error(err))
+                    }
+                    div.appendChild(btnDel);
+                    div.appendChild(btnUp);
+                    LISTING.appendChild(div);
+                }
+
+
+            }
+            getListings()
+            function getOffer(first) {
+                fetch("http://" + window.location.hostname + ":8081/users/" + userID + "/listings/offer", {
+                    method: "GET",
+                    headers: { authorization }
+                })
+                    .then((res) => {
+                        if (res.status === 200) {
+                            return res.json()
+                        } else {
+                            alert(res.statusText)
+                            throw new Error(res)
+                        }
+                    })
+                    .then((data) => {
+                        if (first) {
+                            offerAmount = data.length;
+                        } else {
+                            let saveAmount = data.length
+                            if (saveAmount > offerAmount) {
+                                if (Notification.permission === "granted") {
+                                    new Notification("You got new offer");
+                                }
+                                for (let i = 0; i < offerAmount; i++) {
+                                    data.shift()
+                                }
+                                offerAmount = saveAmount
+                            } else {
+                                return
+                            }
+                        }
+                        data.forEach(element => {
+                            let div = document.createElement("div");
+                            let span = document.createElement("span")
+                            let acc = document.createElement("span")
+                            acc.id = "acc"
+                            span.textContent = `$${element.offer} offer for ${element.title} by ${element.username}`;
+                            div.appendChild(span)
+                            switch (element.accepted) {
+                                case null:
+                                    let btnAccept = document.createElement("button");
+                                    let btnReject = document.createElement("button");
+                                    btnAccept.textContent = "Accept";
+                                    btnAccept.onclick = accept.bind(null,1, element.id, element.lId);
+                                    btnReject.textContent = "Reject";
+                                    btnReject.onclick = accept.bind(null,0, element.id, element.lId);
+                                    div.appendChild(btnAccept)
+                                    div.appendChild(btnReject)
+                                    break;
+                                case 1:
+                                    acc.textContent = "Accepted"
+                                    div.appendChild(acc);
+                                    break;
+                                case 0:
+                                    acc.textContent = "Rejected"
+                                    div.appendChild(acc);
+                                    break;
+                            }
+                            OFFER.appendChild(div)
+                        })
+                    })
+                    .catch((e) => console.log(e))
+            }
+            getOffer(true)
+            let offerAmount;
+            setInterval(getOffer, 10000)
+            function delList(id) {
+                if (confirm("Are sure you want to delete this listing?")) {
+                    fetch("http://" + window.location.hostname + ":8081/listings/" + id, {
+                        method: "DELETE"
+                        , headers: { authorization, "Content-Type": "application/json" }
+                        , body: '{ "fk_poster_id": ' + userID + '}'
+                    })
+                        .then((res) => {
+                            if (res.status === 204) {
+                                alert("You have successfully delete listings")
+                                getListings()
+                            } else {
+                                alert(res.statusText)
+                            }
+                        })
+                        .catch((e) => console.log(e))
+                }
+
+            }
+        } else {
+            window.location = "/login"
+        }
+        function accept(acceptNo, id, lId) {
+            fetch("http://" + window.location.hostname + ":8081/offer/" + id, {
+                method: "PUT",
+                headers: { authorization, "Content-Type": "application/json" },
+                body: `{"fk_poster_id":${userID},"accept":${acceptNo},"fk_listing_id":${lId}}`
+            })
+                .then((res) => {
+                    if (res.status === 204) {
+                        OFFER.innerHTML = ""
+                        setTimeout(alert.bind(null,"you have successfully " + (acceptNo ? "accept" : "reject") + " an offer"), 1)
+                        getOffer(true)
+                    }
+                    else {
+                        alert(res.statusText)
+                    }
+                })
+        }
+    </script>
+</body>
+
+</html>
