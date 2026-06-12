@@ -1,7 +1,7 @@
 <!--
 Student ID:1949955
 Name: Ang Yun Zane
-Class: DIT/FT/1B/01 
+Class: DIT/FT/1B/01
 -->
 <!DOCTYPE html>
 <html lang="en-SG">
@@ -13,7 +13,7 @@ Class: DIT/FT/1B/01
     <meta name="author" content="Ang Yun, zane">
     <title>sign Up|SnapSell</title>
     <link rel="stylesheet" href="/layout.css">
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <!-- <script src="https://www.google.com/recaptcha/api.js" async defer></script> -->
     <style>
         input[type=file]::-webkit-file-upload-button {
             background-color: #ff3333;
@@ -63,7 +63,7 @@ Class: DIT/FT/1B/01
                 </div>
                 <input style="display: none;" type="file" name="pic" id="pic" accept="image/jpeg" />
             </fieldset>
-            <div class="g-recaptcha" data-theme="dark" data-sitekey="?"></div>
+           <!--  <div class="g-recaptcha" data-theme="dark" data-sitekey="?"></div> -->
             <a href="/login">Back</a>
             <input type="submit" value="sign Up">
 
@@ -90,7 +90,7 @@ Class: DIT/FT/1B/01
                                 window.location = "/login"
                             } else  {
                                 alert(data.statusText)
-                                grecaptcha.reset();
+                                //grecaptcha.reset();
                             }
                         })
                 } else {
