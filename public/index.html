@@ -294,17 +294,17 @@ Class: DIT/FT/1B/01
                                     let btnAccept = document.createElement("button");
                                     let btnReject = document.createElement("button");
                                     btnAccept.textContent = "Accept";
-                                    btnAccept.onclick = accept.bind(null,1, element.id, element.lid);
+                                    btnAccept.onclick = accept.bind(null,true, element.id, element.lid);
                                     btnReject.textContent = "Reject";
-                                    btnReject.onclick = accept.bind(null,0, element.id, element.lid);
+                                    btnReject.onclick = accept.bind(null,false, element.id, element.lid);
                                     div.appendChild(btnAccept)
                                     div.appendChild(btnReject)
                                     break;
-                                case 1:
+                                case true:
                                     acc.textContent = "Accepted"
                                     div.appendChild(acc);
                                     break;
-                                case 0:
+                                case false:
                                     acc.textContent = "Rejected"
                                     div.appendChild(acc);
                                     break;

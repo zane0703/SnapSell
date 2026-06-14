@@ -40,9 +40,9 @@ export async function acceptOffer(
   if (result.length) {
     let result2 =
       await sql`UPDATE offers set accepted=${accept} WHERE fk_listing_id=${fk_listing_id} AND id=${id};`;
-    if (!result2.affectedRows) {
+    /* if (!result2.affectedRows) {
       throw new Error("no rows");
-    }
+    } */
     return result2;
   }
 }
