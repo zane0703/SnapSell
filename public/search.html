@@ -1,0 +1,329 @@
+<!--
+Student ID:1949955
+Name: Ang Yun Zane
+Class: DIT/FT/1B/01 
+-->
+<!DOCTYPE html>
+<html lang="en-SG">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="author" content="Ang Yun, zane">
+    <title>Search|SnapSell</title>
+    <link rel="stylesheet" href="/layout.css">
+    <style>
+        #listing>div {
+            text-align: center;
+            padding: 0.5rem;
+            border: 1px #ffffff solid;
+            margin: 0.5rem;
+            height: 425px;
+
+        }
+
+        #listing>div>img {
+            width: 80%;
+            height: 200px;
+            object-fit: contain;
+        }
+
+        #listing>div button {
+            color: #ffffff;
+            background-color: #ff3333;
+            width: 50%;
+            border-radius: 5px;
+        }
+
+        #listing>div button:hover {
+            background-color: #ff0000;
+        }
+
+        button {
+            display: inline;
+            background-color: #ff3333;
+            border: transparent;
+            border-radius: 5px;
+            color: #ffffff;
+        }
+
+        #listing>div>p:nth-of-type(1) {
+            height: 100px;
+            max-width: 100%;
+            size: .1rem;
+            overflow: auto;
+        }
+
+        button:hover {
+            background-color: #ff0000;
+        }
+    </style>
+</head>
+
+<body style="position: relative;">
+    <header>
+        <ul>
+            <li><h1>SnapSell</h1></li>
+            <li><a href="/">Home</a></li>
+            <li><a href="/user">My Info</a></li>
+            <li><a href="/search">Search</a></li>
+            <li><a href="/sell">Sell</a></li>
+            <li><a href="#" id="LogOut">Log out</a></li>
+        </ul>
+    </header>
+    <h1>Search</h1>
+    <input style="width: 80%;margin-left: 1rem;" id="search" type="text">
+    <button onclick="makeSearch({ keyCode: 13 })">Search</button>
+    <div id="listing" style="display: grid;grid-template-columns:33% 33% 33%;"></div>
+    <div style="position: relative;left: 50%;transform: translate(0,50%);max-width: 50%;" id="listPag"></div>
+    <script>
+        const authorization = "Bearer " + localStorage.getItem("authorization")
+        const userID = localStorage.getItem("userID")
+        const LISTING = document.getElementById("listing")
+        const SEARCH = document.getElementById("search")
+        const LOGOUT = document.getElementById("LogOut")
+        const PAGE = document.getElementById("listPag")
+        if (userID) {
+            LOGOUT.onclick = function () {
+                if (confirm("Are you sure you want to log out")) {
+                    localStorage.clear()
+                    window.location = "/login"
+                }
+            }
+        } else {
+            window.location = "/login"
+        }
+        function offer(id, price) {
+            let setOffer = prompt("How much world you like to offer for", price)
+            if (setOffer) {
+                fetch("http://" + window.location.hostname + ":8081/listings/" + id + "/offers", {
+                    method: "POST",
+                    body: `{"fk_offeror_id":${userID},"offer":${setOffer}}`,
+                    headers: { authorization, "Content-Type": "application/json" }
+                })
+                    .then((data) => {
+                        if (data.status === 201) {
+                            alert("you have successfully make an offer")
+                        } else {
+                            alert(data.statusText)
+                        }
+                    })
+            }
+
+        }
+        SEARCH.addEventListener("keypress", makeSearch)
+        function makeSearch(e) {
+            if (e.keyCode === 13) {
+                LISTING.innerHTML = ""
+                fetch("http://" + window.location.hostname + ":8081/listings/search/" + SEARCH.value.trim(), {
+                    method: "GET",
+                    headers: { authorization }
+                })
+                    .then((res) => {
+                        if (res.status === 200) {
+                            return res.text()
+                        } else {
+                            alert(res.statusText)
+                            throw new Error(res.statusText)
+                        }
+                    })
+                    .then(async (data) => {
+                        sessionStorage.setItem("listings", data)
+                        data = JSON.parse(data)
+                        let itemNum = 0
+                        let pageLen = 0
+                        if (data.length > 6) {
+                            PAGE.innerHTML =""
+                            itemNum = 6;
+                            pageLen = Math.floor(data.length / 6);
+                            console.log(pageLen)
+                            pageLen++
+                            for (let i = 1; pageLen >= i; i++) {
+                                let pagBtn = document.createElement("button");
+                                pagBtn.textContent = i;
+                                pagBtn.onclick = () => nextPage(i - 1, pageLen)
+                                PAGE.appendChild(pagBtn)
+                            }
+                        } else { itemNum = data.length }
+                        for (let i = 0; i < itemNum; i++) {
+                            let body = data[i];
+                            let disabled = ''
+                            let div = document.createElement("div");
+                            let img = document.createElement("img");
+                            let h2 = document.createElement("h2");
+                            let h3 = document.createElement("h3");
+                            let p1 = document.createElement("p");
+                            let p2 = document.createElement("p");
+
+                            if (body.like) {
+                                fetch("http://" + window.location.hostname + ":8081/listings/" + data[i].id + "/like", {
+                                    method: "GET",
+                                    headers: { authorization }
+                                })
+                                    .then((res) => {
+                                        if (res.status === 200) {
+                                            return res.json();
+                                        } else {
+                                            throw new Error(res.statusText)
+                                        }
+                                    })
+                                    .then((data) => {
+                                        data.forEach(x => {
+                                            p2.title += x.liker_name + "\n"
+                                        })
+                                    })
+                                    .catch((err) => console.error(err))
+                            }
+                            let btnDel = document.createElement("button");
+                            let btnUp = document.createElement("button")
+                            img.src = data[i].picture_url;
+                            h2.textContent = body.title;
+                            h3.textContent = "$" + data[i].price;
+                            p1.textContent = body.description;
+                            p2.textContent = body.like + " like";
+                            div.appendChild(img);
+                            div.appendChild(h2);
+                            div.appendChild(h3);
+                            div.appendChild(p1);
+                            div.appendChild(p2);
+                            if (body.fk_poster_id == userID || !userID) {
+                                LISTING.appendChild(div);
+                            } else {
+                                fetch("http://" + window.location.hostname + ":8081/listings/" + data[i].id + "/like")
+                                    .then((res) => {
+                                        if (res.status === 200) {
+                                            return res.json()
+                                        }
+                                        else {
+                                            alert(res.statusText)
+                                            throw new Error(res.statusText)
+                                        }
+                                    })
+                                    .then((data2) => {
+                                        let btnLike = document.createElement("button");
+                                        let btnOffer = document.createElement("button");
+                                        btnOffer.textContent = "Offer"
+                                        btnOffer.onclick = () => offer(body.id, body.price);
+                                        if (data2.some(x => x.fk_liker_id == userID)) {
+                                            btnLike.textContent = "unlike";
+                                            btnLike.onclick = () => like(false, body.id);
+                                        } else {
+                                            btnLike.textContent = "like";
+                                            btnLike.onclick = () => like(true, body.id);
+                                        }
+                                        div.appendChild(btnLike);
+                                        div.appendChild(btnOffer);
+                                        LISTING.appendChild(div);
+                                    })
+                                    .catch((e) => console.log(e))
+
+                            }
+                        };
+
+                    })
+                    .catch((e) => console.log(e))
+
+
+            }
+        }
+        function nextPage(i, pageLen) {
+            LISTING.innerHTML = ""
+            let data = JSON.parse(sessionStorage.getItem("listings"))
+            let j = i * 6
+            let end = i == pageLen ? data.length : j + 6;
+            for (; j < end; j++) {
+                let disabled = ''
+                let div = document.createElement("div");
+                let img = document.createElement("img");
+                let h2 = document.createElement("h2");
+                let h3 = document.createElement("h3");
+                let p1 = document.createElement("p");
+                let p2 = document.createElement("p");
+                let body = data[j]
+                if (body.like) {
+                    fetch("http://" + window.location.hostname + ":8081/listings/" + body.id + "/like", {
+                        method: "GET",
+                        headers: { authorization }
+                    })
+                        .then(res => {
+                            if (res.status === 200) {
+                                return res.json();
+                            } else {
+                                throw new Error(res.statusText)
+                            }
+                        })
+                        .then(data => {
+                            data.forEach(x => {
+                                p2.title += x.liker_name + "\n"
+                            })
+                        })
+                        .catch(err => console.error(err))
+                }
+                let btnDel = document.createElement("button");
+                let btnUp = document.createElement("button")
+                img.src = body.picture_url;
+                h2.textContent = body.title;
+                h3.textContent = "$" + body.price;
+                p1.textContent = body.description;
+                p2.textContent = body.like + " like";
+                div.appendChild(img);
+                div.appendChild(h2);
+                div.appendChild(h3);
+                div.appendChild(p1);
+                div.appendChild(p2);
+                if (body.fk_poster_id == userID || !userID) {
+                    LISTING.appendChild(div);
+                } else {
+                    fetch("http://" + window.location.hostname + ":8081/listings/" + body.id + "/like")
+                        .then(data => {
+                            if (data.status === 200) {
+                                return data.json()
+                            }
+                            else {
+                                alert(data.statusText)
+                                throw new Error()
+                            }
+                        })
+                        .then(data => {
+                            let btnLike = document.createElement("button");
+                            let btnOffer = document.createElement("button");
+                            btnOffer.textContent = "Offer"
+                            btnOffer.onclick = () => offer(body.id, body.price);
+                            if (data.some(x => x.fk_liker_id == userID)) {
+                                btnLike.textContent = "unlike";
+                                btnLike.onclick = () => like(false, body.id);
+                            } else {
+                                btnLike.textContent = "like";
+                                btnLike.onclick = () => like(true, body.id);
+                            }
+                            console.log("a")
+                            div.appendChild(btnLike);
+                            div.appendChild(btnOffer);
+                            LISTING.appendChild(div);
+                        })
+                        .catch(e => console.log(e))
+
+                }
+            }
+
+
+        }
+        function like(isLiked, id) {
+            fetch("http://" + window.location.hostname + ":8081/listings/" + id + "/like", {
+                method: isLiked ? "POST" : "DELETE"
+                , headers: { authorization, "Content-Type": "application/json" }
+                , body: `{"fk_liker_id":${userID}}`
+            })
+                .then(data => {
+                    if (data.status == 204 || data.status == 201) {
+                        alert("you have successfully " + (isLiked ? "like" : "unlike") + " a product")
+                        makeSearch({ keyCode: 13 })
+
+                    }
+                })
+        }
+    </script>
+</body>
+
+</html>

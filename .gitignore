@@ -1,0 +1,8 @@
+node_modules
+.env
+*.log
+.vscode
+package-lock.json
+yarn.lock
+public/image/listing/*.jpg
+public/image/profile/*.jpg

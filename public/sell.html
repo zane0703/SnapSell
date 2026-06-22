@@ -1,0 +1,121 @@
+<!--
+Student ID:1949955
+Name: Ang Yun Zane
+Class: DIT/FT/1B/01 
+-->
+<!DOCTYPE html>
+<html lang="en-SG">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="author" content="Ang Yun, zane">
+    <title>Sell|SnapSell</title>
+    <link rel="stylesheet" href="/layout.css">
+    <style>
+        input,
+        textarea {
+            margin-bottom: 10px;
+        }
+
+        input[type=file]::-webkit-file-upload-button {
+            background-color: #ff3333;
+            color: white;
+            border-radius: 5px;
+            border: transparent;
+            cursor: pointer;
+        }
+        input[type=file]::-webkit-file-upload-button:hover{
+            background-color: #ff0000;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <ul>
+            <li><h1>SnapSell</h1></li>
+            <li><a href="/">Home</a></li>
+            <li><a href="/user">My Info</a></li>
+            <li><a href="/search">Search</a></li>
+            <li><a href="/sell">Sell</a></li>
+            <li><a href="#" id="LogOut">Log out</a></li>
+        </ul>
+    </header>
+    <h1>Sell Product</h1>
+    <form style="position: absolute;left: 50%;transform: translate(-50%);" id="listing" action="javascript:void(0);"
+        encType="multipart/form-data">
+        <fieldset style="width: 244.8px;">
+            <legend>Product Info</legend>
+            <label for="title">Title</label>
+            <input type="text" id="title" name="title" required>
+            <br>
+            <label for="price">Price $</label>
+            <input type="text" name="price" id="price" placeholder="10" required>
+            <br>
+            <label for="description">description</label>
+            <br>
+            <textarea name="description" id="description" cols="30" rows="10"></textarea>
+            <br>
+        </fieldset>
+        <fieldset style="width: 244.8px;">
+            <legend>Product Picture</legend>
+            <label for="url">URL</label>
+            <input type="radio" name="upload" onclick="FILE.style.display='none';URLAERA.style.display='block'"
+                value="0" checked />
+            <label for="file">File</label>
+            <input type="radio" name="upload" onclick="FILE.style.display='block';URLAERA.style.display='none'"
+                value="1" />
+            <div id="urlArea">
+                <label for="urlField">URL</label>
+                <input type="url" name="picture_url" id="urlField" placeholder="http://example.com/picture.jpg" />
+            </div>
+            <input style="display: none;" type="file" name="pic" id="pic" accept="image/jpeg" />
+        </fieldset>
+        <input type="submit">
+    </form>
+    <script>
+        const authorization = "Bearer " + localStorage.getItem("authorization")
+        const userID = localStorage.getItem("userID");
+        const LOGOUT = document.getElementById("LogOut");
+        const LISTING = document.getElementById("listing");
+        const URLAERA = document.getElementById("urlArea")
+        const FILE = document.getElementById("pic")
+        const PRICE = document.getElementById("price")
+        if (userID) {
+            LOGOUT.onclick = function () {
+                if (confirm("Are you sure you want to log out")) {
+                    localStorage.clear()
+                    window.location = "/login"
+                }
+            }
+        } else {
+            window.location = "/login"
+        }
+        LISTING.onsubmit = function () {
+            if (PRICE.value.match(/^\d*\.?\d*$/)) {
+                let formData = new FormData(LISTING)
+                formData.append("fk_poster_id", userID)
+                fetch("http://" + window.location.hostname + ":8081/listings", {
+                    method: "POST",
+                    body: formData,
+                    headers: { authorization }
+                })
+                    .then(data => {
+                        if (data.status === 201) {
+                            alert("you have successfully make an listed your product")
+                            window.location = "/"
+                        } else {
+                            alert(data.statusText)
+                        }
+                    })
+            } else {
+                alert("invalid input for price number only")
+            }
+
+        }
+    </script>
+</body>
+
+</html>

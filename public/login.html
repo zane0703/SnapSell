@@ -1,0 +1,74 @@
+<!--
+Student ID:1949955
+Name: Ang Yun Zane
+Class: DIT/FT/1B/01 
+-->
+<!DOCTYPE html>
+<html lang="en-SG">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="author" content="Ang Yun, zane">
+    <link rel="stylesheet" href="layout.css">
+    <title>login|SnapSell</title>
+</head>
+
+<body style="position: absolute;top: 50%;left: 50%;transform: translate(-50%,-50%);">
+    <h1>Login</h1>
+    <form id="login" action="javascript:void(0);">
+        <label for="username">Username</label>
+        <input autocomplete="username" id="username" name="username" style="display: block;margin-bottom: 0.5rem;"
+            required type="text" placeholder="username">
+        <label for="password">Password</label>
+        <input autocomplete="current-password" id="password" name="password"
+            style="display: block;margin-bottom: 0.5rem;" required type="password" placeholder="Password">
+        <input type="submit" value="login">
+    </form>
+    <a style="position: relative;top: 10px;" href="/signUp.html">create your account</a>
+    <script>
+        const LOGIN = document.getElementById("login")
+            , PASSWORD = document.getElementById("password")
+            , USERNAME = document.getElementById("username")
+        USERNAME.addEventListener("keydown", function (e) {
+            if (e.keyCode === 13) {
+                e.preventDefault()
+                PASSWORD.focus()
+            }
+        })
+
+        LOGIN.addEventListener("submit", function (e) {
+            fetch("http://" + window.location.hostname + ":8081/login", {
+                body: `{ "username": "${USERNAME.value}", "password": "${PASSWORD.value}" }`,
+                method: "POST",
+                headers: { "Content-Type": "application/json" }
+            })
+                .then(res => {
+                    switch (res.status) {
+                        case 200:
+                            return res.json()
+                            break;
+                        case 403:
+                            alert("wrong username or password");
+                            break;
+                        case 401:
+                            alert("wrong username");
+                            break;
+                        default:
+                            alert(res.statusText)
+
+                    }
+                    throw new Error(data)
+                })
+                .then(data => {
+                    localStorage.setItem("authorization", data.token)
+                    localStorage.setItem("userID", data.userID)
+                    window.location = "/"
+                })
+                .catch(console.log)
+        })
+    </script>
+</body>
+
+</html>

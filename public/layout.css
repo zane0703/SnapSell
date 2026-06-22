@@ -1,0 +1,78 @@
+@charset "utf-8";
+/*
+Student ID:1949955
+Name: Ang Yun Zane
+Class: DIT/FT/1B/01
+*/
+h1,h2,h3,h4,p{
+    margin: 0.5rem;
+}
+body{
+    background-color: #101010 ;
+    color: #ffffff;
+}
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #ff3333;
+}
+
+li {
+    float: left;
+}
+input[type=text],input[type=password],input[type=url],textarea{
+    border-radius: 5px;
+    background-color: rgba(255, 255, 255, 0.5);
+    border: transparent;
+    outline: none;
+
+}
+input[type=text]:hover,input[type=password]:hover,input[type=url]:focus,textarea:hover{
+    background-color: rgba(255, 255, 255, 0.8); 
+    }
+input[type=text]:focus,input[type=password]:focus,input[type=url]:focus,textarea:focus{
+background-color: rgb(255, 255, 255); 
+
+}
+::-webkit-scrollbar {
+    width: 10px;
+  }
+::-webkit-scrollbar-track,::-webkit-scrollbar-corner{
+    background-color: transparent ;
+}
+::-webkit-scrollbar-thumb{
+    background-color: #ff3333;
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover{
+    background-color: #ff0000;
+}
+
+a ,a:checked,input[type=submit]{
+    background-color: #ff3333;
+    color: white;
+    border-radius: 5px;
+    padding: 5px;
+    text-decoration: none;
+    border: transparent;
+}
+li a {
+    display: block;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+a:hover,input[type=submit]:hover {
+    background-color: #ff0000;
+}
+button,input[type=submit] {
+    cursor: pointer;
+    border:  transparent;
+}
+input[type=radio]{
+    cursor: pointer;
+}
