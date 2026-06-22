@@ -27,7 +27,7 @@ type (
 
 func (m *ListingModel) GetListing(ctx context.Context, id int) (*Listing, error) {
 	listing := Listing{}
-	err := m.DB.QueryRow(ctx, "select id, title, description,price,fk_poster_id,picture_url where id=$1;", id).Scan(&listing.ID, &listing.Title, &listing.Description, &listing.Price, &listing.PosterId, &listing.PictureUrl)
+	err := m.DB.QueryRow(ctx, "select id, title, description, price, fk_poster_id, picture_url FROM listings where id=$1;", id).Scan(&listing.ID, &listing.Title, &listing.Description, &listing.Price, &listing.PosterId, &listing.PictureUrl)
 	if err != nil {
 		return nil, err
 	}
@@ -36,7 +36,7 @@ func (m *ListingModel) GetListing(ctx context.Context, id int) (*Listing, error)
 
 func (m *ListingModel) GetListingsByUser(ctx context.Context, userId int) ([]Listing, error) {
 
-	row, err := m.DB.Query(ctx, "select id, title, description,price,fk_poster_id,picture_url where fk_poster_id=$1;", userId)
+	row, err := m.DB.Query(ctx, "select id, title, description, price, fk_poster_id, picture_url FROM listings where fk_poster_id=$1;", userId)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func (m *ListingModel) GetListingsByUser(ctx context.Context, userId int) ([]Lis
 	return listings, nil
 }
 func (m *ListingModel) GetAllListings(ctx context.Context) ([]Listing, error) {
-	row, err := m.DB.Query(ctx, "select id, title, description,price,fk_poster_id,picture_url;")
+	row, err := m.DB.Query(ctx, "select id, title, description, price, fk_poster_id, picture_url FROM listings;")
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +74,7 @@ func (m *ListingModel) GetAllListings(ctx context.Context) ([]Listing, error) {
 	return listings, nil
 }
 func (m *ListingModel) SearchListings(ctx context.Context, query string) ([]Listing, error) {
-	row, err := m.DB.Query(ctx, "SELECT * FROM listings WHERE title LIKE '%' || $1 || '%'", query)
+	row, err := m.DB.Query(ctx, "SELECT id, title, description, price, fk_poster_id, picture_url FROM listings WHERE title LIKE '%' || $1 || '%'", query)
 	if err != nil {
 		return nil, err
 	}

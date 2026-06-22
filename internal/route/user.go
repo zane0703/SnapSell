@@ -26,7 +26,7 @@ func NewUserRoute(auth middleware.Auth, db *pgxpool.Pool, r *rand.ChaCha8, listi
 		},
 	}
 	mux := http.ServeMux{}
-	path := "/user"
+	path := "/users"
 
 	mux.Handle("GET /{id}/listings", auth.Verify(http.HandlerFunc(listingController.GetListingByUser)))
 
@@ -38,6 +38,7 @@ func NewUserRoute(auth middleware.Auth, db *pgxpool.Pool, r *rand.ChaCha8, listi
 
 	mux.Handle("POST /login", http.HandlerFunc(c.Login))
 	mux.Handle("GET /{id}", auth.Verify(http.HandlerFunc(c.GetUserById)))
+	mux.Handle("PUT /{id}", auth.Verify(http.HandlerFunc(c.UpdateUser)))
 	mux.Handle("GET /", auth.Verify(http.HandlerFunc(c.GetAllUser)))
 	mux.Handle("POST /", http.HandlerFunc(c.CreateUser))
 

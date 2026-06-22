@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	_ "github.com/joho/godotenv"
+	_ "github.com/joho/godotenv/autoload"
 	"github.com/zane0703/SnapSell/internal/middleware"
 	"github.com/zane0703/SnapSell/internal/route"
 	"github.com/zane0703/SnapSell/internal/services"

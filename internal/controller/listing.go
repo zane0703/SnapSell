@@ -26,6 +26,7 @@ type (
 
 func (c *ListingController) CreateListings(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	fmt.Println(r.URL)
 	err := r.ParseMultipartForm(maxContent)
 	if err != nil {
 		log.Println(err)
@@ -50,12 +51,12 @@ func (c *ListingController) CreateListings(w http.ResponseWriter, r *http.Reques
 	file, _, err := r.FormFile("pic")
 	if err == nil && r.FormValue("upload") == "1" {
 
-		randName := make([]byte, 64)
+		randName := make([]byte, 15)
 		for {
 			c.Rand.Read(randName)
-			filename := base64.RawStdEncoding.EncodeToString(randName)
-			pictureURL = fmt.Sprintf("./public/image/listImg/%s.jpg", filename)
-			_, err := os.Stat(pictureURL)
+			filename := base64.URLEncoding.EncodeToString(randName)
+			pictureURL = fmt.Sprintf("/image/listImg/%s.jpg", filename)
+			_, err := os.Stat("./public" + pictureURL)
 			if err != nil {
 				if os.IsNotExist(err) {
 					break
@@ -65,7 +66,7 @@ func (c *ListingController) CreateListings(w http.ResponseWriter, r *http.Reques
 				return
 			}
 		}
-		file2, err := os.OpenFile(pictureURL, os.O_CREATE, 0755)
+		file2, err := os.OpenFile("./public"+pictureURL, os.O_CREATE, 0755)
 		if err != nil {
 			log.Println(err)
 			w.WriteHeader(500)
@@ -138,12 +139,12 @@ func (c *ListingController) UpdateListing(w http.ResponseWriter, r *http.Request
 	file, _, err := r.FormFile("pic")
 	if err == nil && r.FormValue("upload") == "1" {
 		var profilePicURL2 string
-		randName := make([]byte, 64)
+		randName := make([]byte, 15)
 		for {
 			c.Rand.Read(randName)
-			filename := base64.RawStdEncoding.EncodeToString(randName)
-			profilePicURL2 = fmt.Sprintf("./public/image/listImg/%s.jpg", filename)
-			_, err := os.Stat(profilePicURL2)
+			filename := base64.URLEncoding.EncodeToString(randName)
+			profilePicURL2 = fmt.Sprintf("/image/listImg/%s.jpg", filename)
+			_, err := os.Stat("./public" + profilePicURL2)
 			if err != nil {
 				if os.IsNotExist(err) {
 					break
@@ -153,7 +154,7 @@ func (c *ListingController) UpdateListing(w http.ResponseWriter, r *http.Request
 				return
 			}
 		}
-		file2, err := os.OpenFile(profilePicURL2, os.O_CREATE, 0755)
+		file2, err := os.OpenFile("./public"+profilePicURL2, os.O_CREATE, 0755)
 		if err != nil {
 			log.Println(err)
 			w.WriteHeader(500)
@@ -230,7 +231,13 @@ func (c *ListingController) GetListing(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *ListingController) GetAllListing(w http.ResponseWriter, r *http.Request) {
-	listings, err := c.Model.GetAllListings(r.Context())
+	var listings []model.Listing
+	var err error
+	if search := r.URL.Query().Get("search"); search == "" {
+		listings, err = c.Model.GetAllListings(r.Context())
+	} else {
+		listings, err = c.Model.SearchListings(r.Context(), search)
+	}
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(500)

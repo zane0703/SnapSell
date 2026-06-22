@@ -111,12 +111,12 @@ func (c *UserController) CreateUser(w http.ResponseWriter, r *http.Request) {
 	file, _, err := r.FormFile("pic")
 	if err == nil && r.FormValue("upload") == "1" {
 
-		randName := make([]byte, 64)
+		randName := make([]byte, 15)
 		for {
 			c.Rand.Read(randName)
-			filename := base64.RawStdEncoding.EncodeToString(randName)
-			profilePicURL = fmt.Sprintf("./public/image/profile/%s.jpg", filename)
-			_, err := os.Stat(profilePicURL)
+			filename := base64.URLEncoding.EncodeToString(randName)
+			profilePicURL = fmt.Sprintf("/image/profile/%s.jpg", filename)
+			_, err := os.Stat("./public" + profilePicURL)
 			if err != nil {
 				if os.IsNotExist(err) {
 					break
@@ -126,7 +126,7 @@ func (c *UserController) CreateUser(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
-		file2, err := os.OpenFile(profilePicURL, os.O_CREATE, 0755)
+		file2, err := os.OpenFile("./public"+profilePicURL, os.O_CREATE, 0755)
 		if err != nil {
 			log.Println(err)
 			w.WriteHeader(500)
@@ -157,7 +157,7 @@ func (c *UserController) CreateUser(w http.ResponseWriter, r *http.Request) {
 	}{userId})
 }
 
-func (c *UserController) UpdateUser(w http.ResponseWriter, r http.Request) {
+func (c *UserController) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseMultipartForm(maxContent)
 	if err != nil {
 		log.Println(err)
@@ -224,12 +224,12 @@ func (c *UserController) UpdateUser(w http.ResponseWriter, r http.Request) {
 	file, _, err := r.FormFile("pic")
 	if err == nil && r.FormValue("upload") == "1" {
 		var profilePicURL2 string
-		randName := make([]byte, 64)
+		randName := make([]byte, 15)
 		for {
 			c.Rand.Read(randName)
-			filename := base64.RawStdEncoding.EncodeToString(randName)
-			profilePicURL2 = fmt.Sprintf("./public/image/profile/%s.jpg", filename)
-			_, err := os.Stat(profilePicURL2)
+			filename := base64.URLEncoding.EncodeToString(randName)
+			profilePicURL2 = fmt.Sprintf("/image/profile/%s.jpg", filename)
+			_, err := os.Stat("./public" + profilePicURL2)
 			if err != nil {
 				if os.IsNotExist(err) {
 					break
@@ -239,7 +239,7 @@ func (c *UserController) UpdateUser(w http.ResponseWriter, r http.Request) {
 				return
 			}
 		}
-		file2, err := os.OpenFile(profilePicURL2, os.O_CREATE, 0755)
+		file2, err := os.OpenFile("./public/"+profilePicURL2, os.O_CREATE, 0755)
 		if err != nil {
 			log.Println(err)
 			w.WriteHeader(500)

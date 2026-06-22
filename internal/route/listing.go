@@ -29,7 +29,7 @@ func NewListingRoute(auth middleware.Auth, db *pgxpool.Pool, r *rand.ChaCha8, li
 	mux := http.ServeMux{}
 	path := "/listings"
 
-	mux.HandleFunc("GET /search/{query}", c.SearchListing)
+	//mux.HandleFunc("GET /search/{query}", c.SearchListing)
 
 	mux.HandleFunc("GET /{id}/offer", offerController.GetOffersByListings)
 	mux.Handle("POST /{id}/offer", auth.Verify(http.HandlerFunc(offerController.AddOffers)))

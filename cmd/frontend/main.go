@@ -18,7 +18,6 @@ func main() {
 			}
 
 			fileServer.ServeHTTP(w, r)
-			fmt.Println(r.URL)
 		}),
 	}
 	if err := server.ListenAndServe(); err != nil {
