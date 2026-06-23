@@ -25,7 +25,7 @@ func main() {
 	mux := route.NewRoute(*auth, db)
 
 	server := http.Server{
-		Addr:    ":8081",
+		Addr:    "localhost:8081",
 		Handler: middleware.Cors(mux),
 	}
 

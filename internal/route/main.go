@@ -29,7 +29,7 @@ func NewRoute(auth middleware.Auth, db *pgxpool.Pool) http.Handler {
 	userRoute := NewUserRoute(auth, db, cc8, listingRoute.Controller, &likeController, offerRoute.Controller)
 
 	mux.Handle(offerRoute.PATH, offerRoute.Handler)
-	mux.Handle(listingRoute.PATH, offerRoute.Handler)
+	mux.Handle(listingRoute.PATH, listingRoute.Handler)
 	mux.Handle(userRoute.PATH, userRoute.Handler)
 
 	return &mux

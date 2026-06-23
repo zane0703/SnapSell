@@ -3,6 +3,7 @@ package model
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"os"
 
@@ -75,16 +76,19 @@ func (m *OfferModel) AcceptOffer(ctx context.Context, id int, posterId int, list
 	if err != nil {
 		return err
 	}
+	fmt.Println(listingId)
 	var posterId2 int
-	err = conn.QueryRow(ctx, "SELECT fk_poster_id FROM listings WHERE id=$1").Scan(&posterId2)
+	err = conn.QueryRow(ctx, "SELECT fk_poster_id FROM listings WHERE id=$1", listingId).Scan(&posterId2)
 	if err != nil {
+		fmt.Println(1)
 		return err
 	}
 	if posterId != posterId2 {
 		return errors.New("not poster")
 	}
-	c, err := conn.Exec(ctx, "UPDATE offers set accepted=$1, WHERE fk_listing_id=$2 AND id=$3", accept, listingId, id)
+	c, err := conn.Exec(ctx, "UPDATE offers SET accepted=$1 WHERE fk_listing_id=$2 AND id=$3", accept, listingId, id)
 	if err != nil {
+		fmt.Println(2)
 		return err
 	}
 	switch c.RowsAffected() {

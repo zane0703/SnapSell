@@ -30,9 +30,9 @@ func NewUserRoute(auth middleware.Auth, db *pgxpool.Pool, r *rand.ChaCha8, listi
 
 	mux.Handle("GET /{id}/listings", auth.Verify(http.HandlerFunc(listingController.GetListingByUser)))
 
-	mux.Handle("GET /{id}/listings/offer", auth.Verify(http.HandlerFunc(offerController.GetOfferByListingPoster)))
+	mux.Handle("GET /{id}/listings/offers", auth.Verify(http.HandlerFunc(offerController.GetOfferByListingPoster)))
 
-	mux.Handle("GET /{id}/offer", auth.Verify(http.HandlerFunc(offerController.GetOfferByOfferor)))
+	mux.Handle("GET /{id}/offers", auth.Verify(http.HandlerFunc(offerController.GetOfferByOfferor)))
 
 	mux.Handle("GET /{id}/like", auth.Verify(http.HandlerFunc(likingController.GetLikeInfoByLiker)))
 

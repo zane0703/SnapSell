@@ -24,7 +24,13 @@ func (c *LikingController) GetLikeInfoByLiker(w http.ResponseWriter, r *http.Req
 		w.WriteHeader(500)
 		return
 	}
-	c.Model.GetLikeInfoByLiker(r.Context(), listingId)
+	likeInfo, err := c.Model.GetLikeInfoByLiker(r.Context(), listingId)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(500)
+		return
+	}
+	response.Json(w, likeInfo)
 }
 func (c *LikingController) GetLikeInfoByListing(w http.ResponseWriter, r *http.Request) {
 	listingId, err := strconv.Atoi(r.PathValue("id"))
@@ -33,7 +39,13 @@ func (c *LikingController) GetLikeInfoByListing(w http.ResponseWriter, r *http.R
 		w.WriteHeader(500)
 		return
 	}
-	c.Model.GetLikeInfoByListing(r.Context(), listingId)
+	likeInfo, err := c.Model.GetLikeInfoByListing(r.Context(), listingId)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(500)
+		return
+	}
+	response.Json(w, likeInfo)
 }
 func (c *LikingController) AddLike(w http.ResponseWriter, r *http.Request) {
 	listingId, err := strconv.Atoi(r.PathValue("id"))
@@ -89,7 +101,7 @@ func (c *LikingController) DeleteLike(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(403)
 		return
 	}
-	_, err = c.Model.DeleteLike(ctx, listingId, body.LikerId)
+	err = c.Model.DeleteLike(ctx, listingId, body.LikerId)
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(500)

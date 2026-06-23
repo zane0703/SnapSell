@@ -3,6 +3,8 @@ package model
 import (
 	"context"
 	"errors"
+	"log"
+	"os"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -84,31 +86,64 @@ func (m *LikingModel) AddLike(ctx context.Context, listingId int, likerId int) (
 	return id, nil
 }
 
-func (m *LikingModel) DeleteLike(ctx context.Context, listingId int, likerId int) (int, error) {
+func (m *LikingModel) DeleteLike(ctx context.Context, listingId int, likerId int) error {
 	tx, err := m.DB.Begin(ctx)
 	if err != nil {
-		return 0, err
+		return err
 	}
-	var id int
-	err = tx.QueryRow(ctx, "DELETE FROM liking WHERE fk_liker_id=$1 AND fk_listing_id=$2", likerId, listingId).Scan(&id)
+	c, err := tx.Exec(ctx, "DELETE FROM liking WHERE fk_liker_id=$1 AND fk_listing_id=$2", likerId, listingId)
 	if err != nil {
 		err2 := tx.Rollback(ctx)
+
 		if err2 != nil {
-			return 0, errors.Join(err, err2)
+			return errors.Join(err, err2)
 		}
-		return 0, err
+		return err
 	}
-	_, err = tx.Exec(ctx, "UPDATE listings SET \"like\"=\"like\" - 1 WHERE id=$1;", listingId)
-	if err != nil {
+	switch c.RowsAffected() {
+	case 1:
+		break
+	case 0:
+		err = errors.New("not found")
 		err2 := tx.Rollback(ctx)
 		if err2 != nil {
-			return 0, errors.Join(err, err2)
+			return errors.Join(err, err2)
 		}
-		return 0, err
+		return err
+	default:
+		err = errors.New("multiple row updated")
+		log.Fatal(err)
+		os.Exit(1)
+		return err
+	}
+	c, err = tx.Exec(ctx, "UPDATE listings SET \"like\"=\"like\" - 1 WHERE id=$1;", listingId)
+	if err != nil {
+		log.Println(2)
+		err2 := tx.Rollback(ctx)
+		if err2 != nil {
+			return errors.Join(err, err2)
+		}
+		return err
+	}
+	switch c.RowsAffected() {
+	case 1:
+		break
+	case 0:
+		err = errors.New("not found")
+		err2 := tx.Rollback(ctx)
+		if err2 != nil {
+			return errors.Join(err, err2)
+		}
+		return err
+	default:
+		err = errors.New("multiple row updated")
+		log.Fatal(err)
+		os.Exit(1)
+		return err
 	}
 	err = tx.Commit(ctx)
 	if err != nil {
-		return 0, err
+		return err
 	}
-	return id, nil
+	return nil
 }

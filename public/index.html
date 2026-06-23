@@ -253,7 +253,7 @@ Class: DIT/FT/1B/01
             }
             getListings()
             function getOffer(first) {
-                fetch("http://" + window.location.hostname + ":8081/users/" + userID + "/listings/offer", {
+                fetch("http://" + window.location.hostname + ":8081/users/" + userID + "/listings/offers", {
                     method: "GET",
                     headers: { authorization }
                 })
@@ -294,9 +294,9 @@ Class: DIT/FT/1B/01
                                     let btnAccept = document.createElement("button");
                                     let btnReject = document.createElement("button");
                                     btnAccept.textContent = "Accept";
-                                    btnAccept.onclick = accept.bind(null,true, element.id, element.lid);
+                                    btnAccept.onclick = accept.bind(null,true, element.id, element.fk_listing_id);
                                     btnReject.textContent = "Reject";
-                                    btnReject.onclick = accept.bind(null,false, element.id, element.lid);
+                                    btnReject.onclick = accept.bind(null,false, element.id, element.fk_listing_id);
                                     div.appendChild(btnAccept)
                                     div.appendChild(btnReject)
                                     break;

@@ -21,13 +21,14 @@ type (
 		Description string `json:"description"`
 		Price       string `json:"price"`
 		PosterId    int    `json:"fk_poster_id"`
-		PictureUrl  *bool  `json:"picture_url"`
+		PictureUrl  string `json:"picture_url"`
+		Like        int    `json:"like"`
 	}
 )
 
 func (m *ListingModel) GetListing(ctx context.Context, id int) (*Listing, error) {
 	listing := Listing{}
-	err := m.DB.QueryRow(ctx, "select id, title, description, price, fk_poster_id, picture_url FROM listings where id=$1;", id).Scan(&listing.ID, &listing.Title, &listing.Description, &listing.Price, &listing.PosterId, &listing.PictureUrl)
+	err := m.DB.QueryRow(ctx, "select id, title, description, price, fk_poster_id, picture_url, \"like\" FROM listings where id=$1;", id).Scan(&listing.ID, &listing.Title, &listing.Description, &listing.Price, &listing.PosterId, &listing.PictureUrl, &listing.Like)
 	if err != nil {
 		return nil, err
 	}
@@ -36,14 +37,14 @@ func (m *ListingModel) GetListing(ctx context.Context, id int) (*Listing, error)
 
 func (m *ListingModel) GetListingsByUser(ctx context.Context, userId int) ([]Listing, error) {
 
-	row, err := m.DB.Query(ctx, "select id, title, description, price, fk_poster_id, picture_url FROM listings where fk_poster_id=$1;", userId)
+	row, err := m.DB.Query(ctx, "select id, title, description, price, fk_poster_id, picture_url, \"like\" FROM listings where fk_poster_id=$1;", userId)
 	if err != nil {
 		return nil, err
 	}
 	listings := []Listing{}
 	for row.Next() {
 		listing := Listing{}
-		err = row.Scan(&listing.ID, &listing.Title, &listing.Description, &listing.Price, &listing.PosterId, &listing.PictureUrl)
+		err = row.Scan(&listing.ID, &listing.Title, &listing.Description, &listing.Price, &listing.PosterId, &listing.PictureUrl, &listing.Like)
 		if err != nil {
 			return nil, err
 		}
@@ -55,14 +56,14 @@ func (m *ListingModel) GetListingsByUser(ctx context.Context, userId int) ([]Lis
 	return listings, nil
 }
 func (m *ListingModel) GetAllListings(ctx context.Context) ([]Listing, error) {
-	row, err := m.DB.Query(ctx, "select id, title, description, price, fk_poster_id, picture_url FROM listings;")
+	row, err := m.DB.Query(ctx, "select id, title, description, price, fk_poster_id, picture_url, \"like\" FROM listings;")
 	if err != nil {
 		return nil, err
 	}
 	listings := []Listing{}
 	for row.Next() {
 		listing := Listing{}
-		err = row.Scan(&listing.ID, &listing.Title, &listing.Description, &listing.Price, &listing.PosterId, &listing.PictureUrl)
+		err = row.Scan(&listing.ID, &listing.Title, &listing.Description, &listing.Price, &listing.PosterId, &listing.PictureUrl, &listing.Like)
 		if err != nil {
 			return nil, err
 		}
@@ -74,14 +75,14 @@ func (m *ListingModel) GetAllListings(ctx context.Context) ([]Listing, error) {
 	return listings, nil
 }
 func (m *ListingModel) SearchListings(ctx context.Context, query string) ([]Listing, error) {
-	row, err := m.DB.Query(ctx, "SELECT id, title, description, price, fk_poster_id, picture_url FROM listings WHERE title LIKE '%' || $1 || '%'", query)
+	row, err := m.DB.Query(ctx, "SELECT id, title, description, price, fk_poster_id, picture_url, \"like\" FROM listings WHERE title LIKE '%' || $1 || '%'", query)
 	if err != nil {
 		return nil, err
 	}
 	listings := []Listing{}
 	for row.Next() {
 		listing := Listing{}
-		err = row.Scan(&listing.ID, &listing.Title, &listing.Description, &listing.Price, &listing.PosterId, &listing.PictureUrl)
+		err = row.Scan(&listing.ID, &listing.Title, &listing.Description, &listing.Price, &listing.PosterId, &listing.PictureUrl, &listing.Like)
 		if err != nil {
 			return nil, err
 		}

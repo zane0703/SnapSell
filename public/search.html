@@ -118,7 +118,7 @@ Class: DIT/FT/1B/01
                             "/offers",
                         {
                             method: "POST",
-                            body: `{"fk_offeror_id":${userID},"offer":${setOffer}}`,
+                            body: `{"fk_offeror_id":${userID},"offer":"${setOffer}"}`,
                             headers: {
                                 authorization,
                                 "Content-Type": "application/json",
@@ -275,7 +275,7 @@ Class: DIT/FT/1B/01
                                             div.appendChild(btnOffer);
                                             LISTING.appendChild(div);
                                         })
-                                        .catch((e) => console.log(e));
+                                        .catch((e) => console.error(e));
                                 }
                             }
                         })

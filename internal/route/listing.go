@@ -31,8 +31,8 @@ func NewListingRoute(auth middleware.Auth, db *pgxpool.Pool, r *rand.ChaCha8, li
 
 	//mux.HandleFunc("GET /search/{query}", c.SearchListing)
 
-	mux.HandleFunc("GET /{id}/offer", offerController.GetOffersByListings)
-	mux.Handle("POST /{id}/offer", auth.Verify(http.HandlerFunc(offerController.AddOffers)))
+	mux.HandleFunc("GET /{id}/offers", offerController.GetOffersByListings)
+	mux.Handle("POST /{id}/offers", auth.Verify(http.HandlerFunc(offerController.AddOffers)))
 
 	mux.HandleFunc("GET /{id}/like", likingController.GetLikeInfoByListing)
 	mux.Handle("POST /{id}/like", auth.Verify(http.HandlerFunc(likingController.AddLike)))

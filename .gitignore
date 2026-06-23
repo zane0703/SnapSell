@@ -4,5 +4,5 @@ node_modules
 .vscode
 package-lock.json
 yarn.lock
-public/image/listing/*.jpg
+public/image/listImg/*.jpg
 public/image/profile/*.jpg

@@ -2,6 +2,7 @@ package controller
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -40,7 +41,7 @@ func (c *OfferController) AcceptOffer(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(403)
 		return
 	}
-	err = c.Model.AcceptOffer(ctx, offerId, body.ListingId, body.PosterId, body.Accept)
+	err = c.Model.AcceptOffer(ctx, offerId, body.PosterId, body.ListingId, body.Accept)
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(500)
@@ -120,6 +121,7 @@ func (c *OfferController) AddOffers(w http.ResponseWriter, r *http.Request) {
 		OfferorId int    `json:"fk_offeror_id"`
 	}{}
 	json.NewDecoder(r.Body).Decode(&body)
+	fmt.Println(body.Offer)
 	offerID, err := c.Model.AddOffers(r.Context(), body.Offer, body.OfferorId, listingId)
 	if err != nil {
 		log.Println(err)
